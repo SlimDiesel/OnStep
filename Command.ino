@@ -74,6 +74,9 @@ void processCommands() {
   #ifdef HAL_SERIAL_C_ENABLED
     if (SerialC.transmit()) return;
   #endif
+  #ifdef HAL_SERIAL_D_ENABLED
+    if (SerialD.transmit()) return;
+  #endif
 #endif
 
     // if a command is ready, process it
@@ -286,7 +289,7 @@ void processCommands() {
         if (command[1] == 'N' && parameter[0] == 'V' && parameter[1] == 'R' && parameter[2] == 'E' && parameter[3] == 'S' && parameter[4] == 'E' && parameter[5] == 'T' && parameter[6] == 0) {
           if (atHome || parkStatus == Parked) {
             nv.writeLong(EE_autoInitKey,0);
-            strcpy(reply,"NV will be wiped on next boot");
+            strcpy(reply,"NV will be wiped on next boot.");
             boolReply=false;
           } else commandError=CE_NOT_PARKED_OR_AT_HOME; } else
 #if SERIAL_B_ESP_FLASHING == ON
@@ -294,59 +297,13 @@ void processCommands() {
 //            Return: 1 on completion (after up to one minute from start of command.)
         if (command[1] == 'S' && parameter[0] == 'P' && parameter[1] == 'F' && parameter[2] == 'L' && parameter[3] == 'A' && parameter[4] == 'S' && parameter[5] == 'H' && parameter[6] == 0) {
           if (atHome || parkStatus == Parked) {
-            // initialize both serial ports
             SerialA.println("The ESP8266 will now be placed in flash upload mode (at 115200 Baud.)");
             SerialA.println("Arduino's 'Tools -> Upload Speed' should be set to 115200 Baud.");
             SerialA.println("Waiting for data, you have one minute to start the upload.");
             delay(1000);
-
-  #ifdef SERIAL_B_RX
-            SerialB.begin(115200, SERIAL_8N1, SERIAL_B_RX, SERIAL_B_TX);
-  #else
-            SerialB.begin(115200);
-  #endif
-            SerialA.begin(115200);
+            fa.go(false); // flash the addon
+            SerialA.println("ESP8266 reset and in run mode, resuming OnStep operation...");
             delay(1000);
-
-            digitalWrite(ESP8266Gpio0Pin,LOW); delay(20);  // Pgm mode LOW
-            digitalWrite(ESP8266RstPin,LOW);   delay(20);  // Reset, if LOW
-            digitalWrite(ESP8266RstPin,HIGH);  delay(20);  // Reset, inactive HIGH
-            
-            unsigned long lastRead=millis()+55000; // so we have a total of 1 minute to start the upload
-            while (true) {
-              // read from port 1, send to port 0:
-              if (SerialB.available()) {
-                int inByte = SerialB.read(); delayMicroseconds(5);
-                SerialA.write(inByte); delayMicroseconds(5);
-              }
-              // read from port 0, send to port 1:
-              if (SerialA.available()) {
-                int inByte = SerialA.read(); delayMicroseconds(5);
-                SerialB.write(inByte); delayMicroseconds(5);
-                if (millis() > lastRead) lastRead=millis();
-              }
-              yield();
-              if ((long)(millis()-lastRead) > 5000) break; // wait 5 seconds w/no traffic before resuming normal operation
-            }
-
-            SerialA.print("Resetting ESP8266, ");
-            delay(500);
-
-            digitalWrite(ESP8266Gpio0Pin,HIGH); delay(20); // Run mode HIGH
-            digitalWrite(ESP8266RstPin,LOW);  delay(20);   // Reset, if LOW
-            digitalWrite(ESP8266RstPin,HIGH); delay(20);   // Reset, inactive HIGH
-
-            SerialA.println("returning to default Baud rates, and resuming OnStep operation...");
-            delay(500);
-
-  #ifdef SERIAL_B_RX
-            SerialB.begin(SERIAL_B_BAUD_DEFAULT, SERIAL_8N1, SERIAL_B_RX, SERIAL_B_TX);
-  #else
-            SerialB.begin(SERIAL_B_BAUD_DEFAULT);
-  #endif
-            SerialA.begin(SERIAL_A_BAUD_DEFAULT);
-            delay(1000);
-
           } else commandError=CE_NOT_PARKED_OR_AT_HOME;
         } else
 #endif
@@ -498,7 +455,7 @@ void processCommands() {
 // :FS[n]#    Set focuser target position (in microns or steps)
 //            Return: 0 on failure
 //                    1 on success
-        if (toupper(command[1]) == 'S') { foc->setTarget((double)atol(parameter)*spm); } else
+        if (toupper(command[1]) == 'S') { if (!foc->setTarget((double)atol(parameter)*spm)) commandError=CE_SLEW_ERR_IN_STANDBY; } else
 // :FZ#       Set focuser position as zero
 //            Returns: Nothing
         if (command[1] == 'Z') { foc->setPosition(0); boolReply=false; } else
@@ -1628,7 +1585,7 @@ void processCommands() {
       if (command[1] == 'S') {
         if (parameter[0] == '-') f=-1.0; else f=1.0;
         if (parameter[0] == '+' || parameter[0] == '-') i1=1; else i1=0;
-        if (dmsToDouble(&f1,(char *)&parameter[i1],false)) rot.setTarget(f*f1); else commandError=CE_PARAM_FORM;
+        if (dmsToDouble(&f1,(char *)&parameter[i1],false)) { if (!rot.setTarget(f*f1)) commandError=CE_SLEW_ERR_IN_STANDBY; } else commandError=CE_PARAM_FORM;
       } else commandError=CE_CMD_UNKNOWN;
      } else
 #endif
@@ -1680,6 +1637,16 @@ void processCommands() {
             #endif
             delay(50); SerialC.begin(baudRate[i]);
             boolReply=false; 
+#endif
+#if defined(HAL_SERIAL_D_ENABLED)
+          } else
+          if (process_command == COMMAND_SERIAL_D) {
+            SerialD.print("1"); 
+            #ifdef HAL_SERIAL_TRANSMIT
+            while (SerialD.transmit()); 
+            #endif
+            delay(50); SerialD.begin(baudRate[i]); 
+            boolReply=false;
 #endif
           } else commandError=CE_CMD_UNKNOWN;
         } else commandError=CE_PARAM_RANGE;
@@ -2249,7 +2216,7 @@ void processCommands() {
           if (longitude < -360 || longitude > 360) { longitude=0.0; DLF("ERR, processCommands(): bad NV longitude"); }
           timeZone=nv.read(EE_sites+currentSite*25+8)-128;
           timeZone=decodeTimeZone(timeZone);
-          if (timeZone < -12 || timeZone > 14) { timeZone=0.0; DLF("ERR, processCommands(): bad NV timeZone"); }
+          if (timeZone < -14 || timeZone > 12) { timeZone=0.0; DLF("ERR, processCommands(): bad NV timeZone"); }
           updateLST(jd2last(JD,UT1,false));
         } else 
         if (command[1] == '?') {

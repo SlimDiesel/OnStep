@@ -12,6 +12,7 @@
 #define ClassicShield                2 // Original pin-map, for Steve's shield where ST4 port is on the Mega2560's "alternate pins"
 #define AltMega2560                  3 // Obsolete
 #define ClassicInstein               4 // Original pin-map with Instein ST4 port... this is not tested and I have no idea if it's safe to use!
+#define InsteinESP1                  5 // ESP32 Instein PINMAP (latest variant September/2020)
 
 // RAMPS - 3D printer shields/boards that work with OnStep, all are 5-axis designs
 #define Ramps14                     10 // Ramps v1.4 shield for Mega2560
@@ -39,6 +40,7 @@
 // Max2 & Max3 - Larger 4-axis design for aluminum case
 #define MaxPCB2                     41 // Improved "full feature" board, Teensy3.5/Teensy3.6
 #define MaxPCB3                     42 // Adds SPI bus to all stepper drivers (TMC only,) flashes WeMos D1 Mini through OnStep
+#define MaxSTM3                     43 // Update to the MaxPCB3 using an onboard STM32F411CE MCU instead of the Teensy3.5/3.6
 
 #define MaxESP2                     50 // Similar to MaxPCB2 except 3 axes and uses cheaper/more available ESP32 MCU
 #define MaxESP3                     51 // Adds 4th axis and option to flash the WeMos D1 Mini WiFi through OnStep
@@ -68,6 +70,7 @@
 #define EAST                      -11
 #define WEST                      -12
 #define VHIGH                     -13
+#define SHARED                    -14
 #define INVALID               -999999
 
 // mount types                     

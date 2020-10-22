@@ -28,10 +28,13 @@
 #ifndef OneWirePin
   #define OneWirePin       Aux4     // Default Pin for OneWire bus
 #endif
-#define ESP8266Gpio0Pin    Aux1     // ESP8266 GPIO0 or SPI MISO/Fault
-#define ESP8266RstPin      Aux2     // ESP8266 RST or SPI MISO/Fault
+#define AddonBootModePin   Aux1     // ESP8266 GPIO0 or SPI MISO/Fault
+#define AddonResetPin      Aux2     // ESP8266 RST or SPI MISO/Fault
 
 // For software SPI
+#if PINMAP == MksGenL2 || PINMAP == MksGenL21
+  #define SSPI_SHARED
+#endif
 #define SSPI_SCK 52
 #define SSPI_MISO 50
 #define SSPI_MOSI 51
@@ -39,7 +42,7 @@
 // The PEC index sense is a 5V logic input, resets the PEC index on rising edge then waits for 60 seconds before allowing another reset
 #if PINMAP == MksGenL1
   #define PecPin             41     // GenL1 EXP2
-  #define AnalogPecPin       -1     // N/A
+  #define AnalogPecPin      OFF     // N/A
 #else
   #define PecPin             57     // RAMPS AUX1, A-OUT (1=+5V, 2=GND, 3=PEC)
   #define AnalogPecPin       A3     // Note A3 is (57)

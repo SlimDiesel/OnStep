@@ -1,18 +1,15 @@
-// MaxESP v3 specific pins validation
+// InsteinESP1 specific pins validation
 
 // SERIAL PORTS ------------------------------------------------------------------------------------------------------------
-#if SERIAL_B_ESP_FLASHING == ON
-  #if ASSIGNED_AUX2 != PIN_NOT_ASSIGNED
-    #error "Configuration (Config.h): SERIAL_B_ESP_FLASHING enabled but Aux2 is already in use, choose one feature on Aux2."
-  #else
-    #undef ASSIGNED_AUX2
-    #define ASSIGNED_AUX2 PIN_DEDICATED
-    // also undefine the focuser control EN pin since it is in use for other purposes
-    #if PINMAP == MaxESP3
-      #undef Axis4_EN
-      #define Axis4_EN OFF
-    #endif
-  #endif
+
+#if ASSIGNED_AUX2 != PIN_NOT_ASSIGNED
+  #error "Configuration (Config.h): SERIAL_B_ESP_FLASHING enabled but Aux2 is already in use, choose one feature on Aux2."
+#else
+  #undef ASSIGNED_AUX2
+  #define ASSIGNED_AUX2 PIN_DEDICATED
+  // for the InsteinESP1 also undefine the focuser control EN pin since it is in use for other purposes
+  #undef Axis4_EN
+  #define Axis4_EN OFF
 #endif
 
 // USER FEEDBACK ----------------------------
@@ -53,15 +50,15 @@
 #endif
 
 // TIME -------------------------------------
-#if TIME_LOCATION_SOURCE == DS3231
+#if RTC == DS3231
   #if ASSIGNED_AUX3 == PIN_DEDICATED
-    #error "Configuration (Config.h): TIME_LOCATION_SOURCE DS3231 I2C enabled but Aux3 is already in use, choose one feature on Aux3"
+    #error "Configuration (Config.h): RTC DS3231 I2C enabled but Aux3 is already in use, choose one feature on Aux3"
   #else
     #undef ASSIGNED_AUX3
     #define ASSIGNED_AUX3 PIN_SHARED_I2C
   #endif
   #if ASSIGNED_AUX4 == PIN_DEDICATED
-    #error "Configuration (Config.h): TIME_LOCATION_SOURCE DS3231 I2C enabled but Aux4 is already in use, choose one feature on Aux4"
+    #error "Configuration (Config.h): RTC DS3231 I2C enabled but Aux4 is already in use, choose one feature on Aux4"
   #else
     #undef ASSIGNED_AUX4
     #define ASSIGNED_AUX4 PIN_SHARED_I2C
@@ -93,9 +90,9 @@
   #endif
 #endif
 
-#if OneWirePin == Aux8 && defined(ONEWIRE_DEVICES_PRESENT)
+#if TELESCOPE_TEMPERATURE == DS1820
   #if ASSIGNED_AUX8 != PIN_NOT_ASSIGNED
-    #error "Configuration (Config.h): OneWire interface device(s) enabled but Aux8 is already in use, choose one feature on Aux8"
+    #error "Configuration (Config.h): RTC DS1820 OneWire interface enabled but Aux8 is already in use, choose one feature on Aux8"
   #else
     #undef ASSIGNED_AUX8
     #define ASSIGNED_AUX8 PIN_DEDICATED

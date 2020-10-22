@@ -323,7 +323,7 @@
 #define L_LOCATION_TITLE "Location"
 #define L_LOCATION_LONG "Longitude, in deg. and min. +/- 180, W is +"
 #define L_LOCATION_LAT "Latitude, in deg. and min. +/- 90, N is +"
-#define L_LOCATION_RANGE_UTC_OFFSET "UTC Offset, in hours -12 to +14"
+#define L_LOCATION_RANGE_UTC_OFFSET "UTC Offset, in hours -14 to +12"
 #define L_LOCATION_MESSAGE_UTC_OFFSET "Opposite of a time-zone value, this is for Standard Time (not Daylight Time.)"
 
 // ----------------------------  WiFi ----------------------------
@@ -400,7 +400,7 @@
 #define L_GE_UNSPECIFIED "Unknown error"
 #define L_GE_ALT_MAX "Above overhead limit"
 #define L_GE_WEATHER_INIT "Weather sensor init failed"
-#define L_GE_SITE_INIT "Time or Location not updated"
+#define L_GE_SITE_INIT "Time or loc. not updated"
 #define L_GE_NV_INIT "Init NV/EEPROM bad"
 #define L_GE_OTHER "Unknown Error, code"
 

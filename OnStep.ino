@@ -40,8 +40,8 @@
 // firmware info, these are returned by the ":GV?#" commands
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  4
-#define FirmwareVersionMinor  17      // minor version 0 to 99
-#define FirmwareVersionPatch  "k"     // for example major.minor patch: 1.3c
+#define FirmwareVersionMinor  19      // minor version 0 to 99
+#define FirmwareVersionPatch  "c"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 3       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
@@ -109,6 +109,11 @@
 #include "src/lib/Weather.h"
 weather ambient;
 
+#if SERIAL_B_ESP_FLASHING == ON || defined(AddonTriggerPin)
+  #include "src/lib/flashAddon.h"
+  flashAddon fa;
+#endif
+
 #if ROTATOR == ON
   #include "src/lib/Rotator.h"
   rotator rot;
@@ -161,9 +166,15 @@ weather ambient;
 #endif
 
 void setup() {
-  // early pin initialization
   initPre();
-  
+
+  // initialize the ESP8266 Addon flasher
+#if SERIAL_B_ESP_FLASHING == ON
+  fa.init(-1,AddonResetPin,AddonBootModePin);
+#elif defined(AddonTriggerPin)
+  fa.init(AddonTriggerPin,AddonResetPin,AddonBootModePin);
+#endif
+
   // take a half-second to let any connected devices come up before we start setting up pins
   delay(500);
 
@@ -196,7 +207,11 @@ void setup() {
   SerialC.begin(SERIAL_C_BAUD_DEFAULT);
 #endif
 #ifdef HAL_SERIAL_D_ENABLED
-  SerialD.begin(SERIAL_D_BAUD_DEFAULT);
+  #ifdef SERIAL_D_RX
+    SerialD.begin(SERIAL_B_BAUD_DEFAULT, SERIAL_8N1, SERIAL_D_RX, SERIAL_D_TX);
+  #else
+    SerialD.begin(SERIAL_D_BAUD_DEFAULT);
+  #endif
 #endif
 #ifdef HAL_SERIAL_E_ENABLED
   SerialE.begin(SERIAL_E_BAUD_DEFAULT);
@@ -559,6 +574,10 @@ void loop2() {
     if (!committed && lastCommitted) { DLF("MSG: NV data in cache"); lastCommitted=committed; }
 #endif
 
+    // TRIGGER ESPFLASH
+#if defined(AddonTriggerPin)
+    fa.poll();
+#endif
   }
 
   // FASTEST POLLING -----------------------------------------------------------------------------------

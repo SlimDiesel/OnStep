@@ -32,6 +32,7 @@ class focuser {
     virtual bool setTcfEnable(bool enabled) { return false; }
     bool getTcfEnable() { return tcf; }
     long getTcfSteps() {
+      if (isnan(ambient.getTelescopeTemperature())) tcf=false;
       if (tcf) {
         float tc = -round((tcf_coef * (ambient.getTelescopeTemperature() - tcf_t0)) * spm);
         return lround(tc/(float)tcf_deadband)*(long)tcf_deadband;
@@ -90,7 +91,7 @@ class focuser {
     }
 
     // sets target position in steps
-    virtual void setTarget(long pos) { }
+    virtual bool setTarget(long pos) { return false; }
 
     // sets target relative position in steps
     virtual void relativeTarget(long pos) { }
@@ -104,6 +105,9 @@ class focuser {
     void savePosition() { writeTarget(); }
   
   protected:
+    bool movementAllowed() {
+      if (enPin == SHARED && !axis1Enabled) return false; else return true;
+    }
     void writeTarget() {
       nv.writeLong(nvAddress+EE_focSpos,spos);
       nv.writeLong(nvAddress+EE_focTarget,(long)target.part.m);
