@@ -41,7 +41,7 @@
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  4
 #define FirmwareVersionMinor  20      // minor version 0 to 99
-#define FirmwareVersionPatch  "g"     // for example major.minor patch: 1.3c
+#define FirmwareVersionPatch  "i"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 3       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
@@ -208,7 +208,7 @@ void setup() {
 #endif
 #ifdef HAL_SERIAL_D_ENABLED
   #ifdef SERIAL_D_RX
-    SerialD.begin(SERIAL_B_BAUD_DEFAULT, SERIAL_8N1, SERIAL_D_RX, SERIAL_D_TX);
+    SerialD.begin(SERIAL_D_BAUD_DEFAULT, SERIAL_8N1, SERIAL_D_RX, SERIAL_D_TX);
   #else
     SerialD.begin(SERIAL_D_BAUD_DEFAULT);
   #endif
