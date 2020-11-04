@@ -38,7 +38,7 @@
 #define FirmwareTime          __TIME__
 #define FirmwareVersionMajor  "2"
 #define FirmwareVersionMinor  "1"
-#define FirmwareVersionPatch  "b"
+#define FirmwareVersionPatch  "c"
 
 #define Version FirmwareVersionMajor "." FirmwareVersionMinor FirmwareVersionPatch
 
@@ -158,11 +158,7 @@ void setup(void){
 #endif
 
 Again:
-  // clear the buffers and any noise on the serial lines
-  for (int i=0; i<3; i++) {
-    Ser.print(":#"); delay(500);
-    serialRecvFlush();
-  }
+  clearSerialChannel();
 
   // look for On-Step
   Ser.print(":GVP#"); delay(100);
@@ -194,13 +190,8 @@ Again:
     goto Again;
   }
   
-  // clear the buffers and any noise on the serial lines
-  for (int i=0; i<3; i++) {
-    Ser.print(":#");
-    delay(50);
-    serialRecvFlush();
-  }
-
+  clearSerialChannel();
+  
 #if W5500 == ON
   // reset a W5500
   pinMode(9, OUTPUT); 
@@ -240,6 +231,16 @@ Again:
 
   // Initialize the cmd server, timeout after 500ms
   cmdSvr.init(9999,500);
+  
+  // allow time for the background servers to come up
+  delay(2000);
+
+  // clear the serial channel one last time
+  clearSerialChannel();
+  
+#ifdef DEBUG_ON
+  Ser.println("HTTP server started");
+#endif
 
 #if ENCODERS == ON
   encoders.init();
