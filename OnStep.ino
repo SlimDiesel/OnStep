@@ -40,8 +40,8 @@
 // firmware info, these are returned by the ":GV?#" commands
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  4
-#define FirmwareVersionMinor  20      // minor version 0 to 99
-#define FirmwareVersionPatch  "i"     // for example major.minor patch: 1.3c
+#define FirmwareVersionMinor  21      // minor version 0 to 99
+#define FirmwareVersionPatch  "c"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 3       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
@@ -581,6 +581,10 @@ void loop2() {
   }
 
   // FASTEST POLLING -----------------------------------------------------------------------------------
+#if AXIS1_DRIVER_MODEL == TMC_SPI
+  autoModeSwitch();
+#endif
+
 #if ROTATOR == ON
   rot.follow(isSlewing());
 #endif
