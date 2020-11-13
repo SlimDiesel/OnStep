@@ -38,7 +38,7 @@
 #define FirmwareTime          __TIME__
 #define FirmwareVersionMajor  "2"
 #define FirmwareVersionMinor  "1"
-#define FirmwareVersionPatch  "d"
+#define FirmwareVersionPatch  "e"
 
 #define Version FirmwareVersionMajor "." FirmwareVersionMinor FirmwareVersionPatch
 
@@ -121,6 +121,10 @@ void setup(void){
   long serial_baud = SERIAL_BAUD;
   Ser.begin(SERIAL_BAUD_DEFAULT);
   byte tb=1;
+
+#if LED_STATUS != OFF
+  pinMode(LED_STATUS,OUTPUT);
+#endif
 
 // EEPROM Init
 #ifndef EEPROM_DISABLED

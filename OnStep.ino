@@ -41,7 +41,7 @@
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  4
 #define FirmwareVersionMinor  21      // minor version 0 to 99
-#define FirmwareVersionPatch  "c"     // for example major.minor patch: 1.3c
+#define FirmwareVersionPatch  "e"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 3       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
@@ -309,7 +309,6 @@ void setup() {
     if (!tls.active) {
       VLF("MSG: Tracking autostart - no TLS, limits disabled");
       setHome();
-      safetyLimitsOn=false;
     } else {
       if (parkStatus == Parked) {
         VLF("MSG: Tracking autostart - assuming TLS is correct, limits enabled and automatic unpark");
