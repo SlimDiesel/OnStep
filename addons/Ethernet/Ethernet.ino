@@ -38,7 +38,7 @@
 #define FirmwareTime          __TIME__
 #define FirmwareVersionMajor  "2"
 #define FirmwareVersionMinor  "1"
-#define FirmwareVersionPatch  "e"
+#define FirmwareVersionPatch  "f"
 
 #define Version FirmwareVersionMajor "." FirmwareVersionMinor FirmwareVersionPatch
 
@@ -49,6 +49,9 @@
 #endif
 
 #include <limits.h>
+#ifdef ARDUINO_ARCH_SAMD
+  #include <avr/dtostrf.h>
+#endif
 
 // pretty sure this wasn't being compiled in even if W5500 was ON (ahead of #include Config.h) so commented out for now.
 //#ifdef W5500_ON
