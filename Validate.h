@@ -11,6 +11,31 @@
 // -----------------------------------------------------------------------------------
 // correct for configuration backwards compatability
 
+#ifndef FEATURE1_DEFAULT_VALUE
+  #define FEATURE1_DEFAULT_VALUE OFF
+#endif
+#ifndef FEATURE2_DEFAULT_VALUE
+  #define FEATURE2_DEFAULT_VALUE OFF
+#endif
+#ifndef FEATURE3_DEFAULT_VALUE
+  #define FEATURE3_DEFAULT_VALUE OFF
+#endif
+#ifndef FEATURE4_DEFAULT_VALUE
+  #define FEATURE4_DEFAULT_VALUE OFF
+#endif
+#ifndef FEATURE5_DEFAULT_VALUE
+  #define FEATURE5_DEFAULT_VALUE OFF
+#endif
+#ifndef FEATURE6_DEFAULT_VALUE
+  #define FEATURE6_DEFAULT_VALUE OFF
+#endif
+#ifndef FEATURE7_DEFAULT_VALUE
+  #define FEATURE7_DEFAULT_VALUE OFF
+#endif
+#ifndef FEATURE8_DEFAULT_VALUE
+  #define FEATURE8_DEFAULT_VALUE OFF
+#endif
+
 #ifndef PIER_SIDE_PREFERRED_DEFAULT
   #define PIER_SIDE_PREFERRED_DEFAULT BEST
 #endif
@@ -367,8 +392,8 @@
 
 #ifndef LED_RETICLE
   #error "Configuration (Config.h): Setting LED_RETICLE must be present!"
-#elif LED_RETICLE != OFF && LED_RETICLE != ON && (LED_RETICLE < 0 || LED_RETICLE > 255)
-  #error "Configuration (Config.h): Setting LED_RETICLE invalid, use OFF, ON, or a number between 0 and 255 (0 to 100% power.)"
+#elif LED_RETICLE != OFF && (LED_RETICLE < 0 || LED_RETICLE > 255)
+  #error "Configuration (Config.h): Setting LED_RETICLE invalid, use OFF or a number between 0 and 255 (0 to 100% power.)"
 #endif
 
 #ifndef BUZZER
@@ -430,8 +455,8 @@
   #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE must be present!"
 #elif (FEATURE1_PURPOSE == SWITCH || FEATURE1_PURPOSE == DEW_HEATER) && FEATURE1_DEFAULT_VALUE != OFF && FEATURE1_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE1_PURPOSE == ANALOG_OUT && FEATURE1_DEFAULT_VALUE < 0 && FEATURE1_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE1_PURPOSE == ANALOG_OUT && FEATURE1_DEFAULT_VALUE != OFF && (FEATURE1_DEFAULT_VALUE < 0 || FEATURE1_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #ifndef FEATURE2_NAME
@@ -456,8 +481,8 @@
   #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE must be present!"
 #elif (FEATURE2_PURPOSE == SWITCH || FEATURE2_PURPOSE == DEW_HEATER) && FEATURE2_DEFAULT_VALUE != OFF && FEATURE2_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE2_PURPOSE == ANALOG_OUT && FEATURE2_DEFAULT_VALUE < 0 && FEATURE2_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE2_PURPOSE == ANALOG_OUT && FEATURE2_DEFAULT_VALUE != OFF && (FEATURE2_DEFAULT_VALUE < 0 || FEATURE2_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #ifndef FEATURE3_NAME
@@ -482,8 +507,8 @@
   #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE must be present!"
 #elif (FEATURE3_PURPOSE == SWITCH || FEATURE3_PURPOSE == DEW_HEATER) && FEATURE3_DEFAULT_VALUE != OFF && FEATURE3_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE3_PURPOSE == ANALOG_OUT && FEATURE3_DEFAULT_VALUE < 0 && FEATURE3_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE3_PURPOSE == ANALOG_OUT && FEATURE3_DEFAULT_VALUE != OFF && (FEATURE3_DEFAULT_VALUE < 0 || FEATURE3_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #ifndef FEATURE4_NAME
@@ -508,8 +533,8 @@
   #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE must be present!"
 #elif (FEATURE4_PURPOSE == SWITCH || FEATURE4_PURPOSE == DEW_HEATER) && FEATURE4_DEFAULT_VALUE != OFF && FEATURE4_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE4_PURPOSE == ANALOG_OUT && FEATURE4_DEFAULT_VALUE < 0 && FEATURE4_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE4_PURPOSE == ANALOG_OUT && FEATURE4_DEFAULT_VALUE != OFF && (FEATURE4_DEFAULT_VALUE < 0 || FEATURE4_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #ifndef FEATURE5_NAME
@@ -534,8 +559,8 @@
   #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE must be present!"
 #elif (FEATURE5_PURPOSE == SWITCH || FEATURE5_PURPOSE == DEW_HEATER) && FEATURE5_DEFAULT_VALUE != OFF && FEATURE5_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE5_PURPOSE == ANALOG_OUT && FEATURE5_DEFAULT_VALUE < 0 && FEATURE5_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE5_PURPOSE == ANALOG_OUT && FEATURE5_DEFAULT_VALUE != OFF && (FEATURE5_DEFAULT_VALUE < 0 || FEATURE5_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #ifndef FEATURE6_NAME
@@ -560,8 +585,8 @@
   #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE must be present!"
 #elif (FEATURE6_PURPOSE == SWITCH || FEATURE6_PURPOSE == DEW_HEATER) && FEATURE6_DEFAULT_VALUE != OFF && FEATURE6_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE6_PURPOSE == ANALOG_OUT && FEATURE6_DEFAULT_VALUE < 0 && FEATURE6_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE6_PURPOSE == ANALOG_OUT && FEATURE6_DEFAULT_VALUE != OFF && (FEATURE6_DEFAULT_VALUE < 0 || FEATURE6_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #ifndef FEATURE7_NAME
@@ -586,8 +611,8 @@
   #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE must be present!"
 #elif (FEATURE7_PURPOSE == SWITCH || FEATURE7_PURPOSE == DEW_HEATER) && FEATURE7_DEFAULT_VALUE != OFF && FEATURE7_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE7_PURPOSE == ANALOG_OUT && FEATURE7_DEFAULT_VALUE < 0 && FEATURE7_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE7_PURPOSE == ANALOG_OUT && FEATURE7_DEFAULT_VALUE != OFF && (FEATURE7_DEFAULT_VALUE < 0 || FEATURE7_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #ifndef FEATURE8_NAME
@@ -612,8 +637,8 @@
   #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE must be present!"
 #elif (FEATURE8_PURPOSE == SWITCH || FEATURE8_PURPOSE == DEW_HEATER) && FEATURE8_DEFAULT_VALUE != OFF && FEATURE8_DEFAULT_VALUE != ON
   #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE8_PURPOSE == ANALOG_OUT && FEATURE8_DEFAULT_VALUE < 0 && FEATURE8_DEFAULT_VALUE > 255
-  #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (ANALOG OUT) invalid, use 0 to 255 only."
+#elif FEATURE8_PURPOSE == ANALOG_OUT && FEATURE8_DEFAULT_VALUE != OFF && (FEATURE8_DEFAULT_VALUE < 0 || FEATURE8_DEFAULT_VALUE > 255)
+  #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
 #endif
 
 #if (FEATURE1_TEMP & DS_MASK) == DS1820 || (FEATURE2_TEMP & DS_MASK) == DS1820 || (FEATURE3_TEMP & DS_MASK) == DS1820 || (FEATURE4_TEMP & DS_MASK) == DS1820 || (FEATURE5_TEMP & DS_MASK) == DS1820 || (FEATURE6_TEMP & DS_MASK) == DS1820 || (FEATURE7_TEMP & DS_MASK) == DS1820 || (FEATURE8_TEMP & DS_MASK) == DS1820 
