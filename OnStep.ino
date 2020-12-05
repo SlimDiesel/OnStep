@@ -41,7 +41,7 @@
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  4
 #define FirmwareVersionMinor  22      // minor version 0 to 99
-#define FirmwareVersionPatch  "i"     // for example major.minor patch: 1.3c
+#define FirmwareVersionPatch  "j"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 3       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
@@ -305,7 +305,7 @@ void setup() {
 #if TRACK_AUTOSTART == ON
   #if MOUNT_TYPE != ALTAZM
 
-    // tailor behaviour depending on TLS presence
+    // tailor behavior depending on TLS presence
     if (!tls.active) {
       VLF("MSG: Tracking autostart - no TLS, limits disabled");
       setHome();
