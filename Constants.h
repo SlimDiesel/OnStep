@@ -75,6 +75,7 @@
 #define WEST                      -12
 #define VHIGH                     -13
 #define SHARED                    -14
+#define STARTUP                   -15
 #define INVALID                -32767
 
 // mount types                     
@@ -122,7 +123,8 @@
 #define ANALOG_OUT                  2
 #define DEW_HEATER                  3
 #define INTERVALOMETER              4
-#define AUXILLARY_LAST              4
+#define SWITCH_UNPARKED             5
+#define AUXILLARY_LAST              5
 
 // coordinate mode for getting and setting RA/Dec
 #define OBSERVED_PLACE              1
@@ -146,7 +148,9 @@
                                     
 #define EE_currentSite              11  // 1
                                     
-#define EE_pauseHome                12  // 1 + 1
+#define EE_pauseHome                12  // 1
+
+#define EE_mountType                13  // 1
                                     
 #define EE_LMT                      14  // 4
 #define EE_JD                       18  // 4

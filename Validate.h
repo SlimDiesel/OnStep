@@ -58,7 +58,7 @@
   #define AXIS2_LIMIT_MAX 90
 #endif
 
-#if MOUNT_TYPE == ALTAZM
+#if mountType == ALTAZM
   #if !defined(AXIS1_LIMIT_MIN) && defined(AXIS1_LIMIT_MAXAZM)
     #define AXIS1_LIMIT_MIN -AXIS1_LIMIT_MAXAZM
     #define AXIS1_LIMIT_MAX AXIS1_LIMIT_MAXAZM
@@ -128,7 +128,7 @@
 // setup defaults
 
 // enable PEC code only if we need it
-#if !(AXIS1_STEPS_PER_WORMROT == 0 || MOUNT_TYPE == ALTAZM)
+#if AXIS1_STEPS_PER_WORMROT != 0
   #define AXIS1_PEC ON
 #else
   #define AXIS1_PEC OFF
@@ -338,6 +338,38 @@
   #define AXIS5_DRIVER_IRUN OFF
 #endif
 
+#ifndef FEATURE1_ACTIVE_STATE
+  #define FEATURE1_ACTIVE_STATE 1
+#endif
+#ifndef FEATURE2_ACTIVE_STATE
+  #define FEATURE2_ACTIVE_STATE 1
+#endif
+#ifndef FEATURE3_ACTIVE_STATE
+  #define FEATURE3_ACTIVE_STATE 1
+#endif
+#ifndef FEATURE4_ACTIVE_STATE
+  #define FEATURE4_ACTIVE_STATE 1
+#endif
+#ifndef FEATURE5_ACTIVE_STATE
+  #define FEATURE5_ACTIVE_STATE 1
+#endif
+#ifndef FEATURE6_ACTIVE_STATE
+  #define FEATURE6_ACTIVE_STATE 1
+#endif
+#ifndef FEATURE7_ACTIVE_STATE
+  #define FEATURE7_ACTIVE_STATE 1
+#endif
+#ifndef FEATURE8_ACTIVE_STATE
+  #define FEATURE8_ACTIVE_STATE 1
+#endif
+
+#if LOW != 0
+  #error "Library check: OnStep assumes LOW == 0!"
+#endif
+#if HIGH != 1
+  #error "Library check: OnStep assumes HIGH == 1!"
+#endif
+
 // -----------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------
 // Config.h FILE VALIDATION
@@ -374,8 +406,8 @@
 
 #ifndef MOUNT_TYPE
   #error "Configuration (Config.h): Setting MOUNT_TYPE must be present!"
-#elif MOUNT_TYPE != OFF && (MOUNT_TYPE < MOUNT_TYPE_FIRST || MOUNT_TYPE > MOUNT_TYPE_LAST)
-  #error "Configuration (Config.h): Setting MOUNT_TYPE use OFF, GEM, FORK, or ALTAZM."
+#elif MOUNT_TYPE < MOUNT_TYPE_FIRST || MOUNT_TYPE > MOUNT_TYPE_LAST
+  #error "Configuration (Config.h): Setting MOUNT_TYPE use GEM, FORK, or ALTAZM."
 #endif
 
 #ifndef LED_STATUS
@@ -439,7 +471,7 @@
 #ifndef FEATURE1_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE1_PURPOSE must be present!"
 #elif FEATURE1_PURPOSE != OFF && (FEATURE1_PURPOSE < AUXILLARY_FIRST || FEATURE1_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE1_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE1_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE1_TEMP
   #error "Configuration (Config.h): Setting FEATURE1_TEMP must be present!"
@@ -453,10 +485,18 @@
 #endif
 #ifndef FEATURE1_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE must be present!"
-#elif (FEATURE1_PURPOSE == SWITCH || FEATURE1_PURPOSE == DEW_HEATER) && FEATURE1_DEFAULT_VALUE != OFF && FEATURE1_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE1_PURPOSE == ANALOG_OUT && FEATURE1_DEFAULT_VALUE != OFF && (FEATURE1_DEFAULT_VALUE < 0 || FEATURE1_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE1_PURPOSE == SWITCH || FEATURE1_PURPOSE == DEW_HEATER
+  #if FEATURE1_DEFAULT_VALUE != OFF && FEATURE1_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE1_PURPOSE == ANALOG_OUT
+  #if FEATURE1_DEFAULT_VALUE != OFF && (FEATURE1_DEFAULT_VALUE < 0 || FEATURE1_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE1_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE1_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #ifndef FEATURE2_NAME
@@ -465,7 +505,7 @@
 #ifndef FEATURE2_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE2_PURPOSE must be present!"
 #elif FEATURE2_PURPOSE != OFF && (FEATURE2_PURPOSE < AUXILLARY_FIRST || FEATURE2_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE2_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE2_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE2_TEMP
   #error "Configuration (Config.h): Setting FEATURE2_TEMP must be present!"
@@ -479,10 +519,18 @@
 #endif
 #ifndef FEATURE2_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE must be present!"
-#elif (FEATURE2_PURPOSE == SWITCH || FEATURE2_PURPOSE == DEW_HEATER) && FEATURE2_DEFAULT_VALUE != OFF && FEATURE2_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE2_PURPOSE == ANALOG_OUT && FEATURE2_DEFAULT_VALUE != OFF && (FEATURE2_DEFAULT_VALUE < 0 || FEATURE2_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE2_PURPOSE == SWITCH || FEATURE2_PURPOSE == DEW_HEATER
+  #if FEATURE2_DEFAULT_VALUE != OFF && FEATURE2_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE2_PURPOSE == ANALOG_OUT
+  #if FEATURE2_DEFAULT_VALUE != OFF && (FEATURE2_DEFAULT_VALUE < 0 || FEATURE2_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE2_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE2_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #ifndef FEATURE3_NAME
@@ -491,7 +539,7 @@
 #ifndef FEATURE3_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE3_PURPOSE must be present!"
 #elif FEATURE3_PURPOSE != OFF && (FEATURE3_PURPOSE < AUXILLARY_FIRST || FEATURE3_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE3_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE3_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE3_TEMP
   #error "Configuration (Config.h): Setting FEATURE3_TEMP must be present!"
@@ -505,10 +553,18 @@
 #endif
 #ifndef FEATURE3_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE must be present!"
-#elif (FEATURE3_PURPOSE == SWITCH || FEATURE3_PURPOSE == DEW_HEATER) && FEATURE3_DEFAULT_VALUE != OFF && FEATURE3_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE3_PURPOSE == ANALOG_OUT && FEATURE3_DEFAULT_VALUE != OFF && (FEATURE3_DEFAULT_VALUE < 0 || FEATURE3_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE3_PURPOSE == SWITCH || FEATURE3_PURPOSE == DEW_HEATER
+  #if FEATURE3_DEFAULT_VALUE != OFF && FEATURE3_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE3_PURPOSE == ANALOG_OUT
+  #if FEATURE3_DEFAULT_VALUE != OFF && (FEATURE3_DEFAULT_VALUE < 0 || FEATURE3_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE3_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE3_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #ifndef FEATURE4_NAME
@@ -517,7 +573,7 @@
 #ifndef FEATURE4_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE4_PURPOSE must be present!"
 #elif FEATURE4_PURPOSE != OFF && (FEATURE4_PURPOSE < AUXILLARY_FIRST || FEATURE4_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE4_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE4_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE4_TEMP
   #error "Configuration (Config.h): Setting FEATURE4_TEMP must be present!"
@@ -531,10 +587,18 @@
 #endif
 #ifndef FEATURE4_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE must be present!"
-#elif (FEATURE4_PURPOSE == SWITCH || FEATURE4_PURPOSE == DEW_HEATER) && FEATURE4_DEFAULT_VALUE != OFF && FEATURE4_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE4_PURPOSE == ANALOG_OUT && FEATURE4_DEFAULT_VALUE != OFF && (FEATURE4_DEFAULT_VALUE < 0 || FEATURE4_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE4_PURPOSE == SWITCH || FEATURE4_PURPOSE == DEW_HEATER
+  #if FEATURE4_DEFAULT_VALUE != OFF && FEATURE4_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE4_PURPOSE == ANALOG_OUT
+  #if FEATURE4_DEFAULT_VALUE != OFF && (FEATURE4_DEFAULT_VALUE < 0 || FEATURE4_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE4_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE4_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #ifndef FEATURE5_NAME
@@ -543,7 +607,7 @@
 #ifndef FEATURE5_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE5_PURPOSE must be present!"
 #elif FEATURE5_PURPOSE != OFF && (FEATURE5_PURPOSE < AUXILLARY_FIRST || FEATURE5_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE5_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE5_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE5_TEMP
   #error "Configuration (Config.h): Setting FEATURE5_TEMP must be present!"
@@ -557,10 +621,18 @@
 #endif
 #ifndef FEATURE5_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE must be present!"
-#elif (FEATURE5_PURPOSE == SWITCH || FEATURE5_PURPOSE == DEW_HEATER) && FEATURE5_DEFAULT_VALUE != OFF && FEATURE5_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE5_PURPOSE == ANALOG_OUT && FEATURE5_DEFAULT_VALUE != OFF && (FEATURE5_DEFAULT_VALUE < 0 || FEATURE5_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE5_PURPOSE == SWITCH || FEATURE5_PURPOSE == DEW_HEATER
+  #if FEATURE5_DEFAULT_VALUE != OFF && FEATURE5_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE5_PURPOSE == ANALOG_OUT
+  #if FEATURE5_DEFAULT_VALUE != OFF && (FEATURE5_DEFAULT_VALUE < 0 || FEATURE5_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE5_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE5_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #ifndef FEATURE6_NAME
@@ -569,7 +641,7 @@
 #ifndef FEATURE6_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE6_PURPOSE must be present!"
 #elif FEATURE6_PURPOSE != OFF && (FEATURE6_PURPOSE < AUXILLARY_FIRST || FEATURE6_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE6_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE6_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE6_TEMP
   #error "Configuration (Config.h): Setting FEATURE6_TEMP must be present!"
@@ -583,10 +655,18 @@
 #endif
 #ifndef FEATURE6_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE must be present!"
-#elif (FEATURE6_PURPOSE == SWITCH || FEATURE6_PURPOSE == DEW_HEATER) && FEATURE6_DEFAULT_VALUE != OFF && FEATURE6_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE6_PURPOSE == ANALOG_OUT && FEATURE6_DEFAULT_VALUE != OFF && (FEATURE6_DEFAULT_VALUE < 0 || FEATURE6_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE6_PURPOSE == SWITCH || FEATURE6_PURPOSE == DEW_HEATER
+  #if FEATURE6_DEFAULT_VALUE != OFF && FEATURE6_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE6_PURPOSE == ANALOG_OUT
+  #if FEATURE6_DEFAULT_VALUE != OFF && (FEATURE6_DEFAULT_VALUE < 0 || FEATURE6_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE6_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE6_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #ifndef FEATURE7_NAME
@@ -595,7 +675,7 @@
 #ifndef FEATURE7_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE7_PURPOSE must be present!"
 #elif FEATURE7_PURPOSE != OFF && (FEATURE7_PURPOSE < AUXILLARY_FIRST || FEATURE7_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE7_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE7_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE7_TEMP
   #error "Configuration (Config.h): Setting FEATURE7_TEMP must be present!"
@@ -609,10 +689,18 @@
 #endif
 #ifndef FEATURE7_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE must be present!"
-#elif (FEATURE7_PURPOSE == SWITCH || FEATURE7_PURPOSE == DEW_HEATER) && FEATURE7_DEFAULT_VALUE != OFF && FEATURE7_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE7_PURPOSE == ANALOG_OUT && FEATURE7_DEFAULT_VALUE != OFF && (FEATURE7_DEFAULT_VALUE < 0 || FEATURE7_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE7_PURPOSE == SWITCH || FEATURE7_PURPOSE == DEW_HEATER
+  #if FEATURE7_DEFAULT_VALUE != OFF && FEATURE7_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE7_PURPOSE == ANALOG_OUT
+  #if FEATURE7_DEFAULT_VALUE != OFF && (FEATURE7_DEFAULT_VALUE < 0 || FEATURE7_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE7_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE7_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #ifndef FEATURE8_NAME
@@ -621,7 +709,7 @@
 #ifndef FEATURE8_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE8_PURPOSE must be present!"
 #elif FEATURE8_PURPOSE != OFF && (FEATURE8_PURPOSE < AUXILLARY_FIRST || FEATURE8_PURPOSE > AUXILLARY_LAST)
-  #error "Configuration (Config.h): Setting FEATURE8_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, or INTERVALOMETER."
+  #error "Configuration (Config.h): Setting FEATURE8_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE8_TEMP
   #error "Configuration (Config.h): Setting FEATURE8_TEMP must be present!"
@@ -635,10 +723,18 @@
 #endif
 #ifndef FEATURE8_DEFAULT_VALUE
   #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE must be present!"
-#elif (FEATURE8_PURPOSE == SWITCH || FEATURE8_PURPOSE == DEW_HEATER) && FEATURE8_DEFAULT_VALUE != OFF && FEATURE8_DEFAULT_VALUE != ON
-  #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
-#elif FEATURE8_PURPOSE == ANALOG_OUT && FEATURE8_DEFAULT_VALUE != OFF && (FEATURE8_DEFAULT_VALUE < 0 || FEATURE8_DEFAULT_VALUE > 255)
-  #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+#elif FEATURE8_PURPOSE == SWITCH || FEATURE8_PURPOSE == DEW_HEATER
+  #if FEATURE8_DEFAULT_VALUE != OFF && FEATURE8_DEFAULT_VALUE != ON
+    #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (SWITCH or DEW_HEATER) invalid, use OFF or ON only."
+  #endif
+#elif FEATURE8_PURPOSE == ANALOG_OUT
+  #if FEATURE8_DEFAULT_VALUE != OFF && (FEATURE8_DEFAULT_VALUE < 0 || FEATURE8_DEFAULT_VALUE > 255)
+    #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (ANALOG OUT) invalid, use OFF or 0 to 255 only."
+  #endif
+#else // everything else
+  #if FEATURE8_DEFAULT_VALUE != OFF
+    #error "Configuration (Config.h): Setting FEATURE8_DEFAULT_VALUE (etc.) invalid, use OFF only."
+  #endif
 #endif
 
 #if (FEATURE1_TEMP & DS_MASK) == DS1820 || (FEATURE2_TEMP & DS_MASK) == DS1820 || (FEATURE3_TEMP & DS_MASK) == DS1820 || (FEATURE4_TEMP & DS_MASK) == DS1820 || (FEATURE5_TEMP & DS_MASK) == DS1820 || (FEATURE6_TEMP & DS_MASK) == DS1820 || (FEATURE7_TEMP & DS_MASK) == DS1820 || (FEATURE8_TEMP & DS_MASK) == DS1820 
