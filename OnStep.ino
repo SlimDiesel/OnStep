@@ -40,8 +40,8 @@
 // firmware info, these are returned by the ":GV?#" commands
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  5
-#define FirmwareVersionMinor  0       // minor version 0 to 99
-#define FirmwareVersionPatch  "f"     // for example major.minor patch: 1.3c
+#define FirmwareVersionMinor  1       // minor version 0 to 99
+#define FirmwareVersionPatch  "c"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 4       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
@@ -108,6 +108,22 @@
 #include "src/lib/TLS.h"
 #include "src/lib/Weather.h"
 weather ambient;
+
+#if HOME_SENSE != OFF
+  #include "src/lib/DigitalAnalogInput.h"
+  DigitalAnalogInput axis1HomeSense;
+  DigitalAnalogInput axis2HomeSense;
+#endif
+
+#if LIMIT_SENSE != OFF
+  #include "src/lib/DigitalAnalogInput.h"
+  DigitalAnalogInput limitSense;
+#endif
+
+#if PEC_SENSE != OFF
+  #include "src/lib/DigitalAnalogInput.h"
+  DigitalAnalogInput pecSense;
+#endif
 
 #if SERIAL_B_ESP_FLASHING == ON || defined(AddonTriggerPin)
   #include "src/lib/flashAddon.h"
@@ -458,7 +474,7 @@ void loop2() {
         origTargetAxis1.fixed+=fstepAxis1.fixed;
         origTargetAxis2.fixed+=fstepAxis2.fixed;
         // don't advance the target during meridian flips or sync
-        if (getInstrPierSide() == PierSideEast || getInstrPierSide() == PierSideWest) {
+        if (getInstrPierSide() == PIER_SIDE_EAST || getInstrPierSide() == PIER_SIDE_WEST) {
           cli();
           targetAxis1.fixed+=fstepAxis1.fixed;
           targetAxis2.fixed+=fstepAxis2.fixed;
@@ -490,18 +506,10 @@ void loop2() {
 
     // SAFETY CHECKS
 #if LIMIT_SENSE != OFF
-    // support for limit switch(es)
-    byte limit_1st = digitalRead(LimitPin);
-    if (limit_1st == LIMIT_SENSE_STATE) {
-      // Wait for a short while, then read again
-      delayMicroseconds(50);
-      byte limit_2nd = digitalRead(LimitPin);
-      if (limit_2nd == LIMIT_SENSE_STATE) {
-        // It is still low, there must be a problem
-        generalError=ERR_LIMIT_SENSE;
-        stopSlewingAndTracking(SS_LIMIT);
-      } 
-    }
+    if (limitSense.read() == LIMIT_SENSE_STATE) {
+      generalError=ERR_LIMIT_SENSE;
+      stopSlewingAndTracking(SS_LIMIT);
+    } 
 #endif
 
     // check for fault signal, stop any slew or guide and turn tracking off
@@ -662,8 +670,8 @@ void loop2() {
       if (getInstrAxis1() > axis1Settings.max) { generalError=(mountType==ALTAZM)?ERR_AZM:ERR_UNDER_POLE; stopSlewingAndTracking(SS_LIMIT_AXIS1_MAX); } else
       // check for exceeding Meridian Limits
       if (meridianFlip != MeridianFlipNever) {
-        if (getInstrPierSide() == PierSideWest) {
-          if (getInstrAxis1() > degreesPastMeridianW && (!(autoMeridianFlip && goToHere(true) == CE_NONE))) { generalError=ERR_MERIDIAN; stopSlewingAndTracking(SS_LIMIT_AXIS1_MAX); }
+        if (getInstrPierSide() == PIER_SIDE_WEST) {
+          if (getInstrAxis1() > degreesPastMeridianW && (!(autoMeridianFlip && goToHere(PIER_SIDE_EAST) == CE_NONE))) { generalError=ERR_MERIDIAN; stopSlewingAndTracking(SS_LIMIT_AXIS1_MAX); }
         } else
         if (getInstrAxis1() < -degreesPastMeridianE) { generalError=ERR_MERIDIAN; stopSlewingAndTracking(SS_LIMIT_AXIS1_MIN); }
       }
@@ -693,7 +701,7 @@ void stopSlewingAndTracking(StopSlewActions ss) {
   if (trackingState == TrackingMoveTo) {
     if (!abortGoto) {
       abortGoto=StartAbortGoto;
-      VLF("MSG: Goto aborted");
+      VF("MSG: Goto aborted, code "); VL(ss);
     }
   } else {
     if (spiralGuide) stopGuideSpiral();
@@ -705,10 +713,10 @@ void stopSlewingAndTracking(StopSlewActions ss) {
       if (guideDirAxis1 == 'w' ) guideDirAxis1='b';
     } else
     if (ss == SS_LIMIT_AXIS2_MIN) {
-      if (getInstrPierSide() == PierSideWest) { if (guideDirAxis2 == 'n' ) guideDirAxis2='b'; } else if (guideDirAxis2 == 's' ) guideDirAxis2='b';
+      if (getInstrPierSide() == PIER_SIDE_WEST) { if (guideDirAxis2 == 'n' ) guideDirAxis2='b'; } else if (guideDirAxis2 == 's' ) guideDirAxis2='b';
     } else
     if (ss == SS_LIMIT_AXIS2_MAX) {
-      if (getInstrPierSide() == PierSideWest) { if (guideDirAxis2 == 's' ) guideDirAxis2='b'; } else if (guideDirAxis2 == 'n' ) guideDirAxis2='b';
+      if (getInstrPierSide() == PIER_SIDE_WEST) { if (guideDirAxis2 == 's' ) guideDirAxis2='b'; } else if (guideDirAxis2 == 'n' ) guideDirAxis2='b';
     }
     if (trackingState != TrackingNone) {
       if (ss != SS_ALL_FAST) {

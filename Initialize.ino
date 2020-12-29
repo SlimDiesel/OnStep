@@ -93,33 +93,39 @@ void initPins() {
 #endif
 
   // Home position sensing
-#if HOME_SENSE == ON
-  pinMode(Axis1_HOME,INPUT);
-  pinMode(Axis2_HOME,INPUT);
+#if HOME_SENSE > OFF
+  //                  pin,       mode,analog,threshold,     hystersis,      invert
+  axis1HomeSense.init(Axis1_HOME,INPUT,true,HOME_SENSE,HOME_SENSE_HYSTERSIS,false);
+  axis2HomeSense.init(Axis1_HOME,INPUT,true,HOME_SENSE,HOME_SENSE_HYSTERSIS,false);
+#elif HOME_SENSE == ON
+  axis1HomeSense.init(Axis1_HOME,INPUT,false,0,0,false);
+  axis2HomeSense.init(Axis1_HOME,INPUT,false,0,0,false);
 #elif HOME_SENSE == ON_PULLUP
-  pinMode(Axis1_HOME,INPUT_PULLUP);
-  pinMode(Axis2_HOME,INPUT_PULLUP);
+  axis1HomeSense.init(Axis1_HOME,INPUT_PULLUP,false,0,0,false);
+  axis2HomeSense.init(Axis1_HOME,INPUT_PULLUP,false,0,0,false);
 #elif HOME_SENSE == ON_PULLDOWN
-  pinMode(Axis1_HOME,INPUT_PULLDOWN);
-  pinMode(Axis2_HOME,INPUT_PULLDOWN);
+  axis1HomeSense.init(Axis1_HOME,INPUT_PULLDOWN,false,0,0,false);
+  axis2HomeSense.init(Axis1_HOME,INPUT_PULLDOWN,false,0,0,false);
 #endif
 
   // limit switch sense
 #if LIMIT_SENSE == ON
-  pinMode(LimitPin,INPUT);
+  limitSense.init(LimitPin,INPUT,false,0,0,false);
 #elif LIMIT_SENSE == ON_PULLUP
-  pinMode(LimitPin,INPUT_PULLUP);
+  limitSense.init(LimitPin,INPUT_PULLUP,false,0,0,false);
 #elif LIMIT_SENSE == ON_PULLDOWN
-  pinMode(LimitPin,INPUT_PULLDOWN);
+  limitSense.init(LimitPin,INPUT_PULLDOWN,false,0,0,false);
 #endif
 
   // PEC index sense
-#if PEC_SENSE == ON
-  pinMode(PecPin,INPUT);
+#if PEC_SENSE > OFF
+  pecSense.init(PecPin,INPUT,true,PEC_SENSE,PEC_SENSE_HYSTERSIS,false);
+#elif PEC_SENSE == ON
+  pecSense.init(PecPin,INPUT,false,0,0,false);
 #elif PEC_SENSE == ON_PULLUP
-  pinMode(PecPin,INPUT_PULLUP);
+  pecSense.init(PecPin,INPUT_PULLUP,false,0,0,false);
 #elif PEC_SENSE == ON_PULLDOWN
-  pinMode(PecPin,INPUT_PULLDOWN);
+  pecSense.init(PecPin,INPUT_PULLDOWN,false,0,0,false);
 #endif
 
   // Pulse per second
@@ -551,7 +557,7 @@ void initStartupValues() {
   origTargetAxis1.fixed = 0;
 
   // default values for state variables
-  pierSideControl       = PierSideNone;
+  pierSideControl       = PIER_SIDE_NONE;
   dirAxis1              = 1;
   if (latitude >= 0) {
     if (axis1Settings.reverse == ON) defaultDirAxis1 = DefaultDirAxis1SCPInit; else defaultDirAxis1 = DefaultDirAxis1NCPInit;
@@ -611,8 +617,8 @@ void initStartPosition() {
   posAxis2           = 0;
   blAxis2            = 0;
   sei();
-  setIndexAxis1(homePositionAxis1,PierSideEast);
-  setIndexAxis2(homePositionAxis2,PierSideEast);
+  setIndexAxis1(homePositionAxis1,PIER_SIDE_EAST);
+  setIndexAxis2(homePositionAxis2,PIER_SIDE_EAST);
 }
 
 void initStartTimers() {
