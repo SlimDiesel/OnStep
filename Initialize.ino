@@ -96,16 +96,16 @@ void initPins() {
 #if HOME_SENSE > OFF
   //                  pin,       mode,analog,threshold,     hystersis,      invert
   axis1HomeSense.init(Axis1_HOME,INPUT,true,HOME_SENSE,HOME_SENSE_HYSTERSIS,false);
-  axis2HomeSense.init(Axis1_HOME,INPUT,true,HOME_SENSE,HOME_SENSE_HYSTERSIS,false);
+  axis2HomeSense.init(Axis2_HOME,INPUT,true,HOME_SENSE,HOME_SENSE_HYSTERSIS,false);
 #elif HOME_SENSE == ON
   axis1HomeSense.init(Axis1_HOME,INPUT,false,0,0,false);
-  axis2HomeSense.init(Axis1_HOME,INPUT,false,0,0,false);
+  axis2HomeSense.init(Axis2_HOME,INPUT,false,0,0,false);
 #elif HOME_SENSE == ON_PULLUP
   axis1HomeSense.init(Axis1_HOME,INPUT_PULLUP,false,0,0,false);
-  axis2HomeSense.init(Axis1_HOME,INPUT_PULLUP,false,0,0,false);
+  axis2HomeSense.init(Axis2_HOME,INPUT_PULLUP,false,0,0,false);
 #elif HOME_SENSE == ON_PULLDOWN
   axis1HomeSense.init(Axis1_HOME,INPUT_PULLDOWN,false,0,0,false);
-  axis2HomeSense.init(Axis1_HOME,INPUT_PULLDOWN,false,0,0,false);
+  axis2HomeSense.init(Axis2_HOME,INPUT_PULLDOWN,false,0,0,false);
 #endif
 
   // limit switch sense
@@ -239,7 +239,7 @@ void initWriteNvValues() {
     nv.write(EE_parkStatus,NotParked);
 
     // init the pulse-guide rate
-    nv.write(EE_pulseGuideRate,GuideRate1x);
+    nv.write(EE_pulseGuideRate,GR_1X);
 
     // init the default maxRate
     maxRate=((1000000.0/(SLEW_RATE_BASE_DESIRED))/AXIS1_STEPS_PER_DEGREE)*16L;
@@ -422,14 +422,20 @@ void initReadNvValues() {
   // get the degrees past meridian east/west
   if (mountType == GEM) {
     int i=round(nv.read(EE_dpmE)-128);
-    if (i > 60) i=((i-60)*2)+60; else if (i < -60) i=((i+60)*2)-60;
+    if (i > 120)  i=((i-120)*15)+180; else if (i > 60)  i=((i-60)*2)+60; else 
+    if (i < -120) i=((i+120)*15)-180; else if (i < -60) i=((i+60)*2)-60;
     degreesPastMeridianE=i;
-    if (degreesPastMeridianE < -180 || degreesPastMeridianE > 180) { degreesPastMeridianE=0.0; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV degreesPastMeridianE"); }
-  
+    if (labs(degreesPastMeridianE) > 270) { degreesPastMeridianE=0.0; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV degreesPastMeridianE"); }
+    if (degreesPastMeridianE < -axis1Settings.max) degreesPastMeridianE=-axis1Settings.max;
+    if (degreesPastMeridianE > -axis1Settings.min) degreesPastMeridianE=-axis1Settings.min;
+
     i=round(nv.read(EE_dpmW)-128);
-    if (i > 60) i=((i-60)*2)+60; else if (i < -60) i=((i+60)*2)-60;
+    if (i > 120)  i=((i-120)*15)+180; else if (i > 60)  i=((i-60)*2)+60; else 
+    if (i < -120) i=((i+120)*15)-180; else if (i < -60) i=((i+60)*2)-60;
     degreesPastMeridianW=i;
-    if (degreesPastMeridianW < -180 || degreesPastMeridianW > 180) { degreesPastMeridianW=0.0; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV degreesPastMeridianW"); }
+    if (labs(degreesPastMeridianW) > 270) { degreesPastMeridianW=0.0; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV degreesPastMeridianW"); }
+    if (degreesPastMeridianW < axis1Settings.min) degreesPastMeridianW=axis1Settings.min;
+    if (degreesPastMeridianW > axis1Settings.max) degreesPastMeridianW=axis1Settings.max;
   }
   
   // get the min. and max altitude
@@ -484,9 +490,10 @@ void initReadNvValues() {
   if (parkStatus == Parking) { parkStatus=ParkFailed; nv.write(EE_parkStatus,parkStatus); }
 
   // get the pulse-guide rate
-  currentPulseGuideRate=nv.read(EE_pulseGuideRate);
-  if (currentPulseGuideRate < 0) { currentPulseGuideRate=0; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV currentPulseGuideRate"); }
-  if (currentPulseGuideRate > GuideRate1x) { currentPulseGuideRate=GuideRate1x; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV currentPulseGuideRate"); }
+  int r=nv.read(EE_pulseGuideRate);
+  if (r < 0) { r=0; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV pulseGuideRateSelection"); }
+  if (r > GR_1X) { r=GR_1X; generalError=ERR_NV_INIT; DLF("ERR, initReadNvValues(): bad NV pulseGuideRateSelection"); }
+  setPulseGuideRateSelection(r);
 
   // set the default MaxRate based on the desired goto speed
   maxRateBaseActual=maxRateBaseDesired;
@@ -526,8 +533,8 @@ void initReadNvValues() {
 #endif
 
   // set the default guide rate
-  setGuideRate(GuideRateDefault);
-  enableGuideRate(GuideRateDefault);
+  setGuideRateSelection(GR_DEFAULT);
+  activateGuideRateSelection(GR_DEFAULT);
 }
 
 void initGeneralError() {

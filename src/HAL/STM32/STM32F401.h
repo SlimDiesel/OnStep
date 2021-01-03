@@ -60,7 +60,10 @@ void delayNanoseconds(unsigned int n) {
   for (unsigned int i=0; i<np; i++) { __asm__ volatile ("nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t"); }
 }
 
-//--------------------------------------------------------------------------------------------------
+// Allow MCU reset -----------------------------------------------------------------------------------
+#define HAL_RESET NVIC_SystemReset()
+
+//----------------------------------------------------------------------------------------------------
 // General purpose initialize for HAL
 void HAL_Initialize(void) {
   // calibrate delayNanoseconds()
@@ -70,21 +73,20 @@ void HAL_Initialize(void) {
   analogWriteResolution(8);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
 // Internal MCU temperature (in degrees C)
 float HAL_MCU_Temperature(void) {
   return -999;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
 // Initialize timers
 // frequency compensation for adjusting microseconds to timer counts
 #define F_COMP 4000000
 
 #define ISR(f) void f (void)
 
-// was TIM1 which collided with PWM on the Reticle pin
-#define TIM_SIDEREAL   TIM4
+#define TIM_SIDEREAL   TIM4  // was TIM1 which collided with PWM on the Reticle pin
 #define TIM_AXIS1      TIM9
 #define TIM_AXIS2      TIM11
 
@@ -186,7 +188,7 @@ void Timer1SetInterval(long iv, double rateRatio) {
   Timer_Sidereal->setOverflow(round((((double)iv/16.0)*6.0)/rateRatio)); // our "clock" ticks at 6MHz due to the pre-scaler setting
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
 // Re-program interval for the motor timers
 
 #define TIMER_RATE_MHZ         4L   // STM32 motor timers run at 4 MHz
@@ -213,7 +215,7 @@ void PresetTimerInterval(long iv, bool TPS, volatile uint32_t *nextRate, volatil
 #define QuickSetIntervalAxis1(r) WRITE_REG(TIM_AXIS1->ARR, r)
 #define QuickSetIntervalAxis2(r) WRITE_REG(TIM_AXIS2->ARR, r)
 
-// --------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------
 // Fast port writing help, etc.
 
 #define CLR(x,y) (x&=(~(1<<y)))

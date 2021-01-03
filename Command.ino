@@ -285,11 +285,20 @@ void processCommands() {
           boolReply=false;
         } else
 #endif
+// :ERESET#   Reset the MCU.  OnStep must be at home and tracking turned off for this command to work.
+//            Returns: Nothing
+        if (command[1] == 'R' && parameter[0] == 'E' && parameter[1] == 'S' && parameter[2] == 'E' && parameter[3] == 'T' && parameter[4] == 0) {
+          if (atHome || parkStatus == Parked) {
+#ifdef HAL_RESET
+            HAL_RESET;
+#endif
+            boolReply=false;
+          } else commandError=CE_NOT_PARKED_OR_AT_HOME; } else
 // :ENVRESET# Wipe flash.  OnStep must be at home and tracking turned off for this command to work.
         if (command[1] == 'N' && parameter[0] == 'V' && parameter[1] == 'R' && parameter[2] == 'E' && parameter[3] == 'S' && parameter[4] == 'E' && parameter[5] == 'T' && parameter[6] == 0) {
           if (atHome || parkStatus == Parked) {
             nv.writeLong(EE_autoInitKey,0);
-            strcpy(reply,"NV will be wiped on next boot.");
+            strcpy(reply,"NV memory will be cleared on next boot.");
             boolReply=false;
           } else commandError=CE_NOT_PARKED_OR_AT_HOME; } else
 #if SERIAL_B_ESP_FLASHING == ON
@@ -728,7 +737,9 @@ void processCommands() {
         if (soundEnabled)                        reply[i++]='z';                                             // bu[z]zer enabled?
         if (mountType==GEM && autoMeridianFlip)  reply[i++]='a';                                             // [a]uto meridian flip
 #if AXIS1_PEC == ON
-        const char *pch = PECStatusStringAlt; reply[i++]=pch[pecStatus];                                     // PEC Status one of "/,~;^" (/)gnore, ready to (,)lay, (~)laying, ready to (;)ecord, (^)ecording
+        if (mountType != ALTAZM) {
+          const char *pch = PECStatusStringAlt;  reply[i++]=pch[pecStatus];                                  // PEC Status one of "/,~;^" (/)gnore, ready to (,)lay, (~)laying, ready to (;)ecord, (^)ecording
+        }
 #endif
         // provide mount type
         if (mountType == GEM)                    reply[i++]='E'; else
@@ -741,10 +752,10 @@ void processCommands() {
         if (getInstrPierSide() == PIER_SIDE_WEST)  reply[i++]='W';                                           // pier side [W]est
 
         // provide pulse-guide rate
-        reply[i++]='0'+getPulseGuideRate();
+        reply[i++]='0'+getPulseGuideRateSelection();
 
         // provide guide rate
-        reply[i++]='0'+getGuideRate();
+        reply[i++]='0'+getGuideRateSelection();
 
         // provide general error
         reply[i++]='0'+generalError;
@@ -794,11 +805,13 @@ void processCommands() {
         if (getInstrPierSide() == PIER_SIDE_WEST)    reply[3]|=0b11000000;                                   // Pier side west
 
 #if AXIS1_PEC == ON
-        reply[4]=pecStatus|0b10000000;                                                                       // PEC status: 0 ignore, 1 ready play, 2 playing, 3 ready record, 4 recording
+        if (mountType != ALTAZM) {
+          reply[4]=pecStatus|0b10000000;                                                                     // PEC status: 0 ignore, 1 ready play, 2 playing, 3 ready record, 4 recording
+        }
 #endif
         reply[5]=parkStatus|0b10000000;                                                                      // Park status: 0 not parked, 1 parking in-progress, 2 parked, 3 park failed
-        reply[6]=getPulseGuideRate()|0b10000000;                                                             // Pulse-guide rate
-        reply[7]=getGuideRate()|0b10000000;                                                                  // Guide rate
+        reply[6]=getPulseGuideRateSelection()|0b10000000;                                                             // Pulse-guide rate
+        reply[7]=getGuideRateSelection()|0b10000000;                                                                  // Guide rate
         reply[8]=generalError|0b10000000;                                                                    // General error
         reply[9]=0;
         boolReply=false;
@@ -891,7 +904,7 @@ void processCommands() {
           } else
           if (parameter[0] == '9') { // 9n: Misc.
             switch (parameter[1]) {
-              case '0': dtostrf(guideRates[currentPulseGuideRate]/15.0,2,2,reply); boolReply=false; break;// pulse-guide rate
+              case '0': dtostrf(guideRates[getPulseGuideRateSelection()]/15.0,2,2,reply); boolReply=false; break;// pulse-guide rate
               case '1': sprintf(reply,"%i",pecValue); boolReply=false; break;                             // pec analog value
               case '2': dtostrf(maxRate/16.0,3,3,reply); boolReply=false; break;                          // MaxRate (current)
               case '3': dtostrf((double)maxRateBaseActual,3,3,reply); boolReply=false; break;             // maxRateBaseActual (default)
@@ -1263,17 +1276,17 @@ void processCommands() {
           if (i >= 0 && i <= 16399) {
             if ((parameter[0] == 'e' || parameter[0] == 'w') && guideDirAxis1 == 0) {
 #if SEPARATE_PULSE_GUIDE_RATE == ON
-              commandError=startGuideAxis1(parameter[0],currentPulseGuideRate,i,true);
+              commandError=startGuideAxis1(parameter[0],GR_PULSEGUIDE,i,true);
 #else
-              commandError=startGuideAxis1(parameter[0],currentGuideRate,i,true);
+              commandError=startGuideAxis1(parameter[0],GR_GUIDE,i,true);
 #endif
               if (command[1] == 'g') boolReply=false;
             } else
             if ((parameter[0] == 'n' || parameter[0] == 's') && guideDirAxis2 == 0) { 
 #if SEPARATE_PULSE_GUIDE_RATE == ON
-              commandError=startGuideAxis2(parameter[0],currentPulseGuideRate,i,true);
+              commandError=startGuideAxis2(parameter[0],GR_PULSEGUIDE,i,true);
 #else
-              commandError=startGuideAxis2(parameter[0],currentGuideRate,i,true);
+              commandError=startGuideAxis2(parameter[0],GR_GUIDE,i,true);
 #endif
               if (command[1] == 'g') boolReply=false;
             } else commandError=CE_CMD_UNKNOWN;
@@ -1283,19 +1296,19 @@ void processCommands() {
 // :Me# :Mw#  Move Telescope East or West at current guide rate
 //            Returns: Nothing
       if ((command[1] == 'e' || command[1] == 'w') && parameter[0] == 0) {
-        commandError=startGuideAxis1(command[1],currentGuideRate,GUIDE_TIME_LIMIT*1000,false);
+        commandError=startGuideAxis1(command[1],GR_GUIDE,GUIDE_TIME_LIMIT*1000,false);
         boolReply=false;
       } else
 // :Mn# :Ms#  Move Telescope North or South at current guide rate
 //            Returns: Nothing
       if ((command[1] == 'n' || command[1] == 's') && parameter[0] == 0) {
-        commandError=startGuideAxis2(command[1],currentGuideRate,GUIDE_TIME_LIMIT*1000,false);
+        commandError=startGuideAxis2(command[1],GR_GUIDE,GUIDE_TIME_LIMIT*1000,false);
         boolReply=false;
       } else
 // :Mp#  Move Telescope for sPiral search at current guide rate
 //            Returns: Nothing
       if ((command[1] == 'p') && parameter[0] == 0) {
-        commandError=startGuideSpiral(currentGuideRate,GUIDE_SPIRAL_TIME_LIMIT*1000);
+        commandError=startGuideSpiral(GUIDE_SPIRAL_TIME_LIMIT*1000);
         boolReply=false;
       } else
 
@@ -1336,9 +1349,9 @@ void processCommands() {
 //         Returns: 0..9, see :MS#
       if (command[1] == 'N')  {
         CommandErrors e;
-        if (parameter[0] == 0) e=goToHere(PIER_SIDE_EAST); else
-        if (parameter[0] == 'e' && parameter[1] == 0) e=goToHere(PIER_SIDE_EAST); else
-        if (parameter[0] == 'w' && parameter[1] == 0) e=goToHere(PIER_SIDE_WEST); else e=CE_CMD_UNKNOWN;
+        if (parameter[0] == 0) e=goToHere(EAST); else
+        if (parameter[0] == 'e' && parameter[1] == 0) e=goToHere(EAST); else
+        if (parameter[0] == 'w' && parameter[1] == 0) e=goToHere(WEST); else e=CE_CMD_UNKNOWN;
         if (e != CE_CMD_UNKNOWN) {
           if (e >= CE_GOTO_ERR_BELOW_HORIZON && e <= CE_GOTO_ERR_UNSPECIFIED) reply[0]=(char)(e-CE_GOTO_ERR_BELOW_HORIZON)+'1';
           if (e == CE_NONE) reply[0]='0';
@@ -1509,7 +1522,7 @@ void processCommands() {
         if (command[1] == 'M') i=6; else // 20x
         if (command[1] == 'F') i=7; else // 48x
         if (command[1] == 'S') i=8; else i=command[1]-'0'; // typically 240x to 480x can be as low as 60x
-        setGuideRate(i);
+        setGuideRateSelection(i);
         boolReply=false; 
       } else commandError=CE_CMD_UNKNOWN;
      } else
@@ -1981,17 +1994,25 @@ void processCommands() {
               if (AXIS1_PEC != ON) l=0;
               if (l >= 0 && l < 129600000) nv.writeLong(EE_stepsPerWormRotAxis1,l); else commandError=CE_PARAM_RANGE;
             break;
-            case '9': // minutes past meridianE
-              if (labs(f) <= 180) {
+            case '9': // minutes past meridianE (up to +/- 270 degrees range, within min/max)
+              if (f >= -270 && f <= 270) {
                 degreesPastMeridianE=f;
-                i=round(degreesPastMeridianE); if (degreesPastMeridianE > 60) i= 60+round((i-60)/2); else if (degreesPastMeridianE < -60) i=-60+round((i+60)/2);
+                if (degreesPastMeridianE < -axis1Settings.max) degreesPastMeridianE=-axis1Settings.max;
+                if (degreesPastMeridianE > -axis1Settings.min) degreesPastMeridianE=-axis1Settings.min;
+                i=round(degreesPastMeridianE);
+                if (i >  180) i=120+round((i-180)/15); else if (i >  60) i= 60+round((i-60)/2); else
+                if (i < -180) i=120+round((i+180)/15); else if (i < -60) i=-60+round((i+60)/2);
                 nv.write(EE_dpmE,round(i+128));
               } else commandError=CE_PARAM_RANGE;
             break;
-            case 'A': // minutes past meridianW
-              if (labs(f) <= 180) {
+            case 'A': // minutes past meridianW (up to +/- 270 degrees range, within min/max)
+              if (f >= -270 && f <= 270) {
                 degreesPastMeridianW=f;
-                i=round(degreesPastMeridianW); if (degreesPastMeridianW > 60) i= 60+round((i-60)/2); else if (degreesPastMeridianW < -60) i=-60+round((i+60)/2);
+                if (degreesPastMeridianW < axis1Settings.min) degreesPastMeridianW=axis1Settings.min;
+                if (degreesPastMeridianW > axis1Settings.max) degreesPastMeridianW=axis1Settings.max;
+                i=round(degreesPastMeridianW);
+                if (i >  180) i=120+round((i-180)/15); else if (i >  60) i= 60+round((i-60)/2); else
+                if (i < -180) i=120+round((i+180)/15); else if (i < -60) i=-60+round((i+60)/2);
                 nv.write(EE_dpmW,round(i+128));
               } else commandError=CE_PARAM_RANGE;
             break;
