@@ -346,11 +346,17 @@
 #define L_LOCATION_RANGE_UTC_OFFSET "UTC Offset, in Stunden -14 to +12"
 #define L_LOCATION_MESSAGE_UTC_OFFSET "Entgegengesetzter Zeitzonenwert f&uuml;r die Standardzeit (Keine Winterzeit!)"
 
+// advanced configuration
+#define L_REVERT "Auf Standard zurücksetzen"
+#define L_ADV_SET_TITLE "Fortgeschrittene"
+#define L_ADV_SET_HEADER_MSG "Die folgenden Änderungen werden nach dem Neustart von OnStep wirksam:"
+#define L_ADV_MOUNT_TYPE "Wählen 1 GEM, 2 EQ Fork, 3 Alt/Azm"
+
 // reset control
 #define L_RESET_TITLE "OnStep Steuerung zurücksetzen:"
 #define L_RESET "Zurücksetzen OnStep"
 #define L_RESET_FWU "Zurücksetzen OnStep zum Hochladen der Firmware"
-#define L_ADV_RESET_MSG1 "OnStep muss zu Hause oder geparkt sein, andernfalls wird die Rücksetzanforderung ignoriert."
+#define L_RESET_MSG1 "OnStep muss zu Hause oder geparkt sein, andernfalls wird die Rücksetzanforderung ignoriert."
 
 // ----------------------------  WiFi ----------------------------
 

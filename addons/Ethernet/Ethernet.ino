@@ -38,7 +38,7 @@
 #define FirmwareTime          __TIME__
 #define FirmwareVersionMajor  "2"
 #define FirmwareVersionMinor  "1"
-#define FirmwareVersionPatch  "n"
+#define FirmwareVersionPatch  "p"
 
 #define Version FirmwareVersionMajor "." FirmwareVersionMinor FirmwareVersionPatch
 
@@ -216,6 +216,7 @@ Again:
   server.init();
   server.on("/index.htm", handleRoot);
   server.on("/configuration.htm", handleConfiguration);
+  server.on("/configurationA.txt", configurationAjaxGet);
   server.on("/settings.htm", handleSettings);
   server.on("/settingsA.txt", settingsAjaxGet);
   server.on("/settings.txt", settingsAjax);
