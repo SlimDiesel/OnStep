@@ -41,7 +41,7 @@
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  5
 #define FirmwareVersionMinor  1       // minor version 0 to 99
-#define FirmwareVersionPatch  "h"     // for example major.minor patch: 1.3c
+#define FirmwareVersionPatch  "j"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 4       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
@@ -231,6 +231,13 @@ void setup() {
 #endif
 #ifdef HAL_SERIAL_E_ENABLED
   SerialE.begin(SERIAL_E_BAUD_DEFAULT);
+#endif
+#if TIME_LOCATION_SOURCE == GPS
+  #ifdef SERIAL_GPS_RX
+    SerialGPS.begin(SERIAL_GPS_BAUD, SERIAL_8N1, SERIAL_GPS_RX, SERIAL_GPS_TX);
+  #else
+    SerialGPS.begin(SERIAL_GPS_BAUD);
+  #endif
 #endif
 #if ST4_HAND_CONTROL == ON && ST4_INTERFACE != OFF
   SerialST4.begin();
@@ -498,7 +505,7 @@ void loop2() {
     if (mountType == ALTAZM) {
       if (lstNow%3 != 0) doHorRateCalc(); // Alt/Azm rates
     } else {
-      if (rateCompensation != RC_NONE && lstNow%3 != 0) doRefractionRateCalc(); // refraction comp rates
+      if (rateCompensation != RC_NONE && lstNow%3 != 0) doRefractionRateCalc(); 
     }
 
     // SAFETY CHECKS
