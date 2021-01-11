@@ -350,6 +350,56 @@
   #define AXIS5_DRIVER_IRUN OFF
 #endif
 
+#ifndef FEATURE1_ACTIVE_UNPARKED
+  #define FEATURE1_ACTIVE_UNPARKED 0
+#endif
+#ifndef FEATURE2_ACTIVE_UNPARKED
+  #define FEATURE2_ACTIVE_UNPARKED 0
+#endif
+#ifndef FEATURE3_ACTIVE_UNPARKED
+  #define FEATURE3_ACTIVE_UNPARKED 0
+#endif
+#ifndef FEATURE4_ACTIVE_UNPARKED
+  #define FEATURE4_ACTIVE_UNPARKED 0
+#endif
+#ifndef FEATURE5_ACTIVE_UNPARKED
+  #define FEATURE5_ACTIVE_UNPARKED 0
+#endif
+#ifndef FEATURE6_ACTIVE_UNPARKED
+  #define FEATURE6_ACTIVE_UNPARKED 0
+#endif
+#ifndef FEATURE7_ACTIVE_UNPARKED
+  #define FEATURE7_ACTIVE_UNPARKED 0
+#endif
+#ifndef FEATURE8_ACTIVE_UNPARKED
+  #define FEATURE8_ACTIVE_UNPARKED 0
+#endif
+
+#ifndef FEATURE1_ACTIVE_GOTO
+  #define FEATURE1_ACTIVE_GOTO 0
+#endif
+#ifndef FEATURE2_ACTIVE_GOTO
+  #define FEATURE2_ACTIVE_GOTO 0
+#endif
+#ifndef FEATURE3_ACTIVE_GOTO
+  #define FEATURE3_ACTIVE_GOTO 0
+#endif
+#ifndef FEATURE4_ACTIVE_GOTO
+  #define FEATURE4_ACTIVE_GOTO 0
+#endif
+#ifndef FEATURE5_ACTIVE_GOTO
+  #define FEATURE5_ACTIVE_GOTO 0
+#endif
+#ifndef FEATURE6_ACTIVE_GOTO
+  #define FEATURE6_ACTIVE_GOTO 0
+#endif
+#ifndef FEATURE7_ACTIVE_GOTO
+  #define FEATURE7_ACTIVE_GOTO 0
+#endif
+#ifndef FEATURE8_ACTIVE_GOTO
+  #define FEATURE8_ACTIVE_GOTO 0
+#endif
+
 #ifndef FEATURE1_ACTIVE_STATE
   #define FEATURE1_ACTIVE_STATE 1
 #endif
@@ -378,8 +428,8 @@
 #if LOW != 0
   #error "Library check: OnStep assumes LOW == 0!"
 #endif
-#if HIGH != 1
-  #error "Library check: OnStep assumes HIGH == 1!"
+#if HIGH != 1 || true != 1
+  #error "Library check: OnStep assumes both true and HIGH == 1!"
 #endif
 
 // -----------------------------------------------------------------------------------
@@ -462,13 +512,14 @@
   #ifdef SERIAL_GPS
     #define SerialGPS SERIAL_GPS
   #endif
-  #ifdef SerialGPSBaud
-    #ifndef SERIAL_GPS_BAUD
-      #define SERIAL_GPS_BAUD SerialGPSBaud
-    #endif
-  #endif
   #ifndef SerialGPS
     #error "Configuration (Config.h): Setting SERIAL_GPS, GPS requires adding a line to identify the serial port '#define SERIAL_GPS Serial6' for example."
+  #endif
+  #ifndef SERIAL_GPS
+    #define SERIAL_GPS SerialGPS
+  #endif
+  #ifdef SerialGPSBaud
+    #define SERIAL_GPS_BAUD SerialGPSBaud
   #endif
   #ifndef SERIAL_GPS_BAUD
     #warning "Configuration (Config.h): Setting SERIAL_GPS_BAUD, GPS serial port baud rate is not defined, using 4800."
@@ -500,7 +551,7 @@
 #endif
 #ifndef FEATURE1_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE1_PURPOSE must be present!"
-#elif FEATURE1_PURPOSE != OFF && (FEATURE1_PURPOSE < AUXILLARY_FIRST || FEATURE1_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE1_PURPOSE != OFF && (FEATURE1_PURPOSE < AUXILARY_FIRST || FEATURE1_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE1_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE1_TEMP
@@ -534,7 +585,7 @@
 #endif
 #ifndef FEATURE2_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE2_PURPOSE must be present!"
-#elif FEATURE2_PURPOSE != OFF && (FEATURE2_PURPOSE < AUXILLARY_FIRST || FEATURE2_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE2_PURPOSE != OFF && (FEATURE2_PURPOSE < AUXILARY_FIRST || FEATURE2_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE2_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE2_TEMP
@@ -568,7 +619,7 @@
 #endif
 #ifndef FEATURE3_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE3_PURPOSE must be present!"
-#elif FEATURE3_PURPOSE != OFF && (FEATURE3_PURPOSE < AUXILLARY_FIRST || FEATURE3_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE3_PURPOSE != OFF && (FEATURE3_PURPOSE < AUXILARY_FIRST || FEATURE3_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE3_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE3_TEMP
@@ -602,7 +653,7 @@
 #endif
 #ifndef FEATURE4_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE4_PURPOSE must be present!"
-#elif FEATURE4_PURPOSE != OFF && (FEATURE4_PURPOSE < AUXILLARY_FIRST || FEATURE4_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE4_PURPOSE != OFF && (FEATURE4_PURPOSE < AUXILARY_FIRST || FEATURE4_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE4_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE4_TEMP
@@ -636,7 +687,7 @@
 #endif
 #ifndef FEATURE5_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE5_PURPOSE must be present!"
-#elif FEATURE5_PURPOSE != OFF && (FEATURE5_PURPOSE < AUXILLARY_FIRST || FEATURE5_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE5_PURPOSE != OFF && (FEATURE5_PURPOSE < AUXILARY_FIRST || FEATURE5_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE5_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE5_TEMP
@@ -670,7 +721,7 @@
 #endif
 #ifndef FEATURE6_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE6_PURPOSE must be present!"
-#elif FEATURE6_PURPOSE != OFF && (FEATURE6_PURPOSE < AUXILLARY_FIRST || FEATURE6_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE6_PURPOSE != OFF && (FEATURE6_PURPOSE < AUXILARY_FIRST || FEATURE6_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE6_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE6_TEMP
@@ -704,7 +755,7 @@
 #endif
 #ifndef FEATURE7_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE7_PURPOSE must be present!"
-#elif FEATURE7_PURPOSE != OFF && (FEATURE7_PURPOSE < AUXILLARY_FIRST || FEATURE7_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE7_PURPOSE != OFF && (FEATURE7_PURPOSE < AUXILARY_FIRST || FEATURE7_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE7_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE7_TEMP
@@ -738,7 +789,7 @@
 #endif
 #ifndef FEATURE8_PURPOSE
   #error "Configuration (Config.h): Setting FEATURE8_PURPOSE must be present!"
-#elif FEATURE8_PURPOSE != OFF && (FEATURE8_PURPOSE < AUXILLARY_FIRST || FEATURE8_PURPOSE > AUXILLARY_LAST)
+#elif FEATURE8_PURPOSE != OFF && (FEATURE8_PURPOSE < AUXILARY_FIRST || FEATURE8_PURPOSE > AUXILARY_LAST)
   #error "Configuration (Config.h): Setting FEATURE8_PURPOSE invalid, use OFF, SWITCH, ANALOG_OUTPUT, DEW_HEATER, etc."
 #endif
 #ifndef FEATURE8_TEMP
@@ -1138,6 +1189,20 @@
   #include "src/sd_drivers/Validate.TMC_SPI.h"
   #include "src/sd_drivers/Validate.GENERIC.h"
   #include "src/sd_drivers/Validate.SERVO.h"
+
+  #if AXIS1_DRIVER_STATUS == ON
+    #error "Configuration (Config.h): AXIS1_DRIVER_STATUS; Stepper driver doesn't support the ON setting."
+  #endif
+  #if AXIS1_DRIVER_STATUS != OFF && AXIS1_DRIVER_STATUS != LOW && AXIS1_DRIVER_STATUS != HIGH && AXIS1_DRIVER_STATUS != TMC_SPI
+    #error "Configuration (Config.h): AXIS1_DRIVER_STATUS; Stepper driver unsupported setting, use OFF, ON, LOW, HIGH, TMC_SPI."
+  #endif
+
+  #if AXIS2_DRIVER_STATUS == ON
+    #error "Configuration (Config.h): AXIS2_DRIVER_STATUS; Stepper driver doesn't support the ON setting."
+  #endif
+  #if AXIS2_DRIVER_STATUS != OFF && AXIS2_DRIVER_STATUS != LOW && AXIS2_DRIVER_STATUS != HIGH && AXIS2_DRIVER_STATUS != TMC_SPI
+    #error "Configuration (Config.h): AXIS2_DRIVER_STATUS; Stepper driver unsupported setting, use OFF, ON, LOW, HIGH, TMC_SPI."
+  #endif
 
   #if AXIS1_DRIVER_DECAY_MODE_GOTO == STEALTHCHOP || AXIS2_DRIVER_DECAY_MODE_GOTO == STEALTHCHOP
     #warning "Configuration (Config.h): TMC stepper driver _VQUIET mode is generally not recommended except for situations where motor RPM is low."
