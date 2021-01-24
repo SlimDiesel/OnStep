@@ -56,6 +56,7 @@
 #ifdef ARDUINO_ARCH_SAMD
   #include <avr/dtostrf.h>
 #endif
+#define Ser Serial1  // Default=Serial1, This is the hardware serial port where OnStep is attached
 
 #include <Ethernet.h>
 
@@ -189,6 +190,7 @@ Again:
     
     // we're all set, just change the baud rate to match OnStep
     Ser.begin(serial_baud); delay(2000);
+    VLF("WEM: Ethernet, Connection established");
   } else {
     // got nothing back, toggle baud rate and/or swap ports
     serialRecvFlush();
