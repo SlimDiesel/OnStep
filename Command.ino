@@ -277,14 +277,16 @@ void processCommands() {
 
 //  E - Enter special mode
       if (command[0] == 'E') {
-#if DEBUG != OFF
-// :EC[s]# Echo string [c] on SerialA.
+// :EC[s]# Echo string [c] on DebugSer.
 //            Return: Nothing
         if (command[1] == 'C') {
-          SerialA.println(parameter);
+          // spaces are encoded as '_'
+          for (unsigned int i=0; i < strlen(parameter); i++) if (parameter[i]=='_') parameter[i]=' ';
+          // a newline is encoded as '&' in the last char of message
+          int l=strlen(parameter);
+          if (l > 0 && parameter[l-1] == '&') { parameter[l-1]=0; DL(parameter); } else D(parameter);
           boolReply=false;
         } else
-#endif
 // :ERESET#   Reset the MCU.  OnStep must be at home and tracking turned off for this command to work.
 //            Returns: Nothing
         if (command[1] == 'R' && parameter[0] == 'E' && parameter[1] == 'S' && parameter[2] == 'E' && parameter[3] == 'T' && parameter[4] == 0) {
@@ -1511,12 +1513,12 @@ void processCommands() {
         boolReply=false; 
       } else
 
-// :RG#       Set slew rate to Guiding Rate   1X
-// :RC#       Set slew rate to Centering rate 8X
-// :RM#       Set slew rate to Find Rate     20X
-// :RF#       Set slew rate to Fast Rate     48X
-// :RS#       Set slew rate to Half Max (VF)  ?X (1/2 of maxRate)
-// :Rn#       Set slew rate to n, where n = 0..9
+// :RG#       Set guide rate: Guiding        1X
+// :RC#       Set guide rate: Centering      8X
+// :RM#       Set guide rate: Find          20X
+// :RF#       Set guide rate: Fast          48X
+// :RS#       Set guide rate: Slew           ?X (1/2 of current goto rate)
+// :Rn#       Set guide rate to n, where n = 0..9
 //            Returns: Nothing
       if ((command[1] == 'G' || command[1] == 'C' || command[1] == 'M' || command[1] == 'S' || (command[1] >= '0' && command[1] <= '9')) && parameter[0] == 0) {
         if (command[1] == 'G') i=2; else // 1x

@@ -37,7 +37,7 @@
 #define FirmwareTime          __TIME__
 #define FirmwareVersionMajor  "1"
 #define FirmwareVersionMinor  "9"
-#define FirmwareVersionPatch  "j"
+#define FirmwareVersionPatch  "k"
 
 #include "Constants.h"
 #include "Locales.h"
@@ -55,6 +55,10 @@ SmartHandController HdCrtlr;
 void setup(void)
 {
   HdCrtlr.setup(Version, pin, active, SERIAL_BAUD_DEFAULT, static_cast<SmartHandController::OLED>(DISPLAY_OLED));
+  
+  // say hello
+  VF("HCM: SHC Addon "); V(FirmwareVersionMajor); V("."); V(FirmwareVersionMinor); VL(FirmwareVersionPatch);
+  VF("HCM: MCU = "); VLF(MCU_STR);
 }
 
 void loop()
