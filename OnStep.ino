@@ -41,10 +41,12 @@
 #define FirmwareDate          __DATE__
 #define FirmwareVersionMajor  5
 #define FirmwareVersionMinor  1       // minor version 0 to 99
-#define FirmwareVersionPatch  "u"     // for example major.minor patch: 1.3c
+#define FirmwareVersionPatch  "v"     // for example major.minor patch: 1.3c
 #define FirmwareVersionConfig 4       // internal, for tracking configuration file changes
 #define FirmwareName          "On-Step"
 #define FirmwareTime          __TIME__
+
+#warning "The master branch is for developers/testing and most would do well to use the latest release instead... or in lieu of that, any beta branch that might exist."
 
 #include "Constants.h"
 
